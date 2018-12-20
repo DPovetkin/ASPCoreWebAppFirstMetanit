@@ -33,14 +33,14 @@ namespace ASPCoreWebAppFirst
 
         private Task SendResponseAsync(IDictionary<string, object> environment)
         {
-            // определяем ответ
-            string responseText = "Hello ASP.NET Core";
-            // кодируем его в массив байтов
+            // получаем заголовки запроса
+            var requestHeaders = (IDictionary<string, string[]>)environment["owin.RequestHeaders"];
+            // получаем данные по User-Agent
+            string responseText = requestHeaders["User-Agent"][0];
             byte[] responseBytes = Encoding.UTF8.GetBytes(responseText);
 
-            // получаем поток ответа
             var responseStream = (Stream)environment["owin.ResponseBody"];
-            // отправка ответа
+
             return responseStream.WriteAsync(responseBytes, 0, responseBytes.Length);
         }
     }
