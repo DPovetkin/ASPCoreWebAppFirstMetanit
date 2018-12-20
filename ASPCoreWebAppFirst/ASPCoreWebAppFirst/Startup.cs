@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -22,22 +24,24 @@ namespace ASPCoreWebAppFirst
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
 
-
-            app.UseStaticFiles();
-            app.Run(async (context) =>
+            app.UseOwin(pipeline =>
             {
-                await context.Response.WriteAsync("Hello World");
+                pipeline(next => SendResponseAsync);
             });
 
+        }
 
-            //if (env.IsDevelopment())
-            //{
-            //    app.UseDeveloperExceptionPage();
-            //}
-            //app.UseMiddleware<ErrirHandlingMiddleware>();
-            //app.UseMiddleware<AuthentificationMiddleware>();
-            //app.UseMiddleware<RoutingMiddleware>();
+        private Task SendResponseAsync(IDictionary<string, object> environment)
+        {
+            // определяем ответ
+            string responseText = "Hello ASP.NET Core";
+            // кодируем его в массив байтов
+            byte[] responseBytes = Encoding.UTF8.GetBytes(responseText);
 
+            // получаем поток ответа
+            var responseStream = (Stream)environment["owin.ResponseBody"];
+            // отправка ответа
+            return responseStream.WriteAsync(responseBytes, 0, responseBytes.Length);
         }
     }
 }
