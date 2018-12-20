@@ -21,13 +21,22 @@ namespace ASPCoreWebAppFirst
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            if (env.IsDevelopment())
+
+
+            app.UseStaticFiles();
+            app.Run(async (context) =>
             {
-                app.UseDeveloperExceptionPage();
-            }
-            app.UseMiddleware<ErrirHandlingMiddleware>();
-            app.UseMiddleware<AuthentificationMiddleware>();
-            app.UseMiddleware<RoutingMiddleware>();
+                await context.Response.WriteAsync("Hello World");
+            });
+
+
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseDeveloperExceptionPage();
+            //}
+            //app.UseMiddleware<ErrirHandlingMiddleware>();
+            //app.UseMiddleware<AuthentificationMiddleware>();
+            //app.UseMiddleware<RoutingMiddleware>();
 
         }
     }
