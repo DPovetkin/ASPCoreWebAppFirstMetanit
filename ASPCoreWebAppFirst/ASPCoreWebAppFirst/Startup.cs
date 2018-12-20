@@ -33,7 +33,7 @@ namespace ASPCoreWebAppFirst
 
             //app.UseMiddleware<TokenMiddleware>();
 
-            app.UseToken();
+            app.UseToken("123");
 
             app.Run(async (context) =>
             {
