@@ -9,10 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ServicesLifeCycle.Services;
 
 // AddSingleton
-// AddSingleton создает один объект для всех последующих запросов, при этом объект создается только тогда, когда он непосредственно необходим.
-// Этот метод имеет все те же перегруженые версии, что и AddTransient и AddScoped.
-
-// Для применения AddSingleton изменим метод ConfigureServices():
+// Для создания singleton-объектов необязательно полагаться на механизм DI.Мы его можем сами создать и передать в нужный метод:
 
 namespace ServicesLifeCycle
 {
@@ -21,9 +18,11 @@ namespace ServicesLifeCycle
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddSingleton<ICounter, RandomCounter>();
-            services.AddSingleton<CounterService>();
+        {            
+
+            RandomCounter randomCounter = new RandomCounter();
+            services.AddSingleton<ICounter>(randomCounter);
+            services.AddSingleton<CounterService>(new CounterService(randomCounter));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
