@@ -7,12 +7,15 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+//Чтобы использовать класс MessageService, он внедряется в приложение в виде сервиса.
+//Поскольку это самодостаточная зависимость, которая представляет конкретный класс, то метод services.AddTransient типизируется одним этим типом MessageService.
+//Но так как класс MessageService использует зависимость IMessageSender, которая передается через конструктор, то нам надо также установить и эту зависимость:
+//
+//services.AddTransient<IMessageSender, EmailMessageSender>();
+//И когда при обработке запроса будет использоваться класс MessageService, для создания объекта этого класса будет вызываться провайдер сервисов.
+//Провайдер сервисов проверят конструктор класса MessageService на наличие зависимостей.Затем создает объекты для всех используемых зависимостей и передает их в конструктор.
 
-
-//При этом необязательно разделять определение сервиса в виде интерфейса и его реализацию.Сам термин "сервис" в данном 
-//    случае может представлять любой объект, функциональность которого может использоваться в приложении.
-
-//Например, определим новый класс TimeService:
+//В методе Configure сервис MessageService передается в качестве параметра и участвует в обработке запроса.
 
 namespace DIApp
 {
@@ -22,17 +25,17 @@ namespace DIApp
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTimeService();
+            services.AddTransient<IMessageSender, EmailMessageSender>();
+            services.AddTransient<MessageService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, TimeService timeService)
+        public void Configure(IApplicationBuilder app, MessageService messageService)
         {            
 
             app.Run(async (context) =>
             {
-                context.Response.ContentType = "text/html; charset=utf-8";
-                await context.Response.WriteAsync($"Текущее время: {timeService?.GetTime()}");
+                await context.Response.WriteAsync(messageService.Send());
             });
         }
     }
