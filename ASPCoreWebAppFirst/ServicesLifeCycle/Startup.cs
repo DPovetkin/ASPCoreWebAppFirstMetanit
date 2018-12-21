@@ -8,16 +8,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using ServicesLifeCycle.Services;
 
-// Transient: при каждом обращении к сервису создается новый объект сервиса.
-// В течение одного запроса может быть несколько обращений к сервису, соответственно при каждом обращении будет создаваться новый объект.
-// Подобная модель жизненного цикла наиболее подходит для легковесных сервисов, которые не хранят данных о состоянии
+// AddScoped
+// Метод AddScoped создает один экземпляр объекта для всего запроса.
+// Он имеет те же перегруженные версии, что и AddTransient.
+// Для его применения изменим метод ConfigureServices() в классе Startup
 
-// В нашем случае CounterMiddleware получает объект ICounter, для которого создается один экземпляр класса RandomCounter.
-// CounterMiddleware также получает объект CounterService, который также использует ICounter.
-// И для этого ICounter будет создаваться второй экземпляр класса RandomCounter.
-// Поэтому генерируемые случайные числа обоими экземплярами не совпадают. Таким образом, применение AddTransient создаст два разных объекта RandomCounter.
-
-//При втором и последующих запросах к контроллеру будут создаваться новые объекты RandomCounter.
+// Теперь в рамках одного и того же запроса и CounterMiddleware и сервис CounterService будут использовать один и тот же объект RandomCounter.
+// При следующем запросе к приложению будет генерироваться новый объект RandomCounter
 
 namespace ServicesLifeCycle
 {
@@ -27,8 +24,8 @@ namespace ServicesLifeCycle
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<ICounter, RandomCounter>();
-            services.AddTransient<CounterService>();
+            services.AddScoped<ICounter, RandomCounter>();
+            services.AddScoped<CounterService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
