@@ -10,9 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 
 
+//Метод Invoke компонентов middleware
+//Подобно тому, как зависимости передаются в метод Configure в классе Startup, точно также их можно передавать в метод Invoke компонента middleware.
+// Например,определим следующий компонент: MessageMiddleware
 
-    //Еще один похожий способ представляет получение сервисов через свойство ApplicationServices объекта IApplicationBuilder, 
-    //    который передается в качестве параметра в метод Configure класса Startup:
 namespace DIApp
 {
     public class Startup
@@ -27,14 +28,10 @@ namespace DIApp
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app)
-        {            
+        {
+            app.UseMiddleware<MessageMiddleware>();
 
-            app.Run(async (context) =>
-            {
-                IMessageSender messageSender = app.ApplicationServices.GetService<IMessageSender>();
-                context.Response.ContentType = "text/html; charset=utf-8";
-                await context.Response.WriteAsync(messageSender.Send());
-            });
+
         }
     }
 }
