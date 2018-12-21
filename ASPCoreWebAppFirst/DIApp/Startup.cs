@@ -9,14 +9,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 
-//Объект HttpContext.RequestServices предоставляет доступ к всем внедренным зависимостям с помощью своих методов:
 
-//GetService<service>(): использует провайдер сервисов для создания объекта, который представляет тип service. 
-//    В случае если в провайдере сервисов для данного сервиса не установлена зависимость, то возвращает значение null
 
-//GetRequiredService<service>(): использует провайдер сервисов для создания объекта, который представляет тип service. 
-//    В случае если в провайдере сервисов для данного сервиса не установлена зависимость, то генерирует исключение
-
+    //Еще один похожий способ представляет получение сервисов через свойство ApplicationServices объекта IApplicationBuilder, 
+    //    который передается в качестве параметра в метод Configure класса Startup:
 namespace DIApp
 {
     public class Startup
@@ -35,7 +31,7 @@ namespace DIApp
 
             app.Run(async (context) =>
             {
-                IMessageSender messageSender = context.RequestServices.GetService<IMessageSender>();
+                IMessageSender messageSender = app.ApplicationServices.GetService<IMessageSender>();
                 context.Response.ContentType = "text/html; charset=utf-8";
                 await context.Response.WriteAsync(messageSender.Send());
             });
