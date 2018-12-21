@@ -7,15 +7,15 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-//Чтобы использовать класс MessageService, он внедряется в приложение в виде сервиса.
-//Поскольку это самодостаточная зависимость, которая представляет конкретный класс, то метод services.AddTransient типизируется одним этим типом MessageService.
-//Но так как класс MessageService использует зависимость IMessageSender, которая передается через конструктор, то нам надо также установить и эту зависимость:
-//
-//services.AddTransient<IMessageSender, EmailMessageSender>();
-//И когда при обработке запроса будет использоваться класс MessageService, для создания объекта этого класса будет вызываться провайдер сервисов.
-//Провайдер сервисов проверят конструктор класса MessageService на наличие зависимостей.Затем создает объекты для всех используемых зависимостей и передает их в конструктор.
 
-//В методе Configure сервис MessageService передается в качестве параметра и участвует в обработке запроса.
+
+//Объект HttpContext.RequestServices предоставляет доступ к всем внедренным зависимостям с помощью своих методов:
+
+//GetService<service>(): использует провайдер сервисов для создания объекта, который представляет тип service. 
+//    В случае если в провайдере сервисов для данного сервиса не установлена зависимость, то возвращает значение null
+
+//GetRequiredService<service>(): использует провайдер сервисов для создания объекта, который представляет тип service. 
+//    В случае если в провайдере сервисов для данного сервиса не установлена зависимость, то генерирует исключение
 
 namespace DIApp
 {
@@ -26,16 +26,18 @@ namespace DIApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddTransient<IMessageSender, EmailMessageSender>();
-            services.AddTransient<MessageService>();
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, MessageService messageService)
+        public void Configure(IApplicationBuilder app)
         {            
 
             app.Run(async (context) =>
             {
-                await context.Response.WriteAsync(messageService.Send());
+                IMessageSender messageSender = context.RequestServices.GetService<IMessageSender>();
+                context.Response.ContentType = "text/html; charset=utf-8";
+                await context.Response.WriteAsync(messageSender.Send());
             });
         }
     }
